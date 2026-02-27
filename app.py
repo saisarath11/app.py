@@ -31,12 +31,20 @@ y = df["role"]
 model = MultinomialNB()
 model.fit(X, y)
 
+@st.cache_resource
+def load_model():
+    return pipeline("text-generation", model="sshleifer/tiny-gpt2")
+
+generator = load_model()
+
 print("ML Model Trained Successfully!")
 
 name = input("Enter your name: ")
 email = input("Enter email: ")
 skills_input = input("Enter your skills: ")
 projects = input("Describe your project: ")
+
+if st.button("Generate Portfolio"):
 
 skills_vector = vectorizer.transform([skills_input])
 predicted_role = model.predict(skills_vector)[0]
@@ -143,4 +151,5 @@ c.save()
 from google.colab import files
 
 files.download("AI_Resume.pdf")
+
 
