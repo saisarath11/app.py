@@ -7,9 +7,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 import os
 
-st.set_page_config(page_title="Hybrid AI Resume & Portfolio Builder", layout="centered")
+st.set_page_config(page_title=" AI Resume & Portfolio Builder", layout="centered")
 
-st.title("🚀 Hybrid AI Resume & Portfolio Builder")
+st.title(" AI Resume & Portfolio Builder")
 
 
 data = {
@@ -60,13 +60,10 @@ if st.button("Generate Resume & Portfolio"):
         st.warning("Please fill all required fields.")
     else:
 
-        # -------------------------------
-        # ML Role Prediction
-        # -------------------------------
         skills_vector = vectorizer.transform([skills_input])
         predicted_role = model.predict(skills_vector)[0]
 
-        st.subheader("🎯 Predicted Job Role")
+        st.subheader(" Predicted Job Role")
         st.success(predicted_role)
 
        
@@ -79,7 +76,7 @@ if st.button("Generate Resume & Portfolio"):
             do_sample=True
         )[0]["generated_text"]
 
-        st.subheader("📌 AI Career Objective")
+        st.subheader(" AI Career Objective")
         st.write(objective)
 
         bio_prompt = f"{name} is an aspiring {predicted_role} skilled in {skills_input}. "
@@ -104,7 +101,7 @@ if st.button("Generate Resume & Portfolio"):
             do_sample=True
         )[0]["generated_text"]
 
-        st.subheader("📂 AI Project Description")
+        st.subheader(" AI Project Description")
         st.write(project_text)
 
       
@@ -117,7 +114,7 @@ if st.button("Generate Resume & Portfolio"):
             do_sample=True
         )[0]["generated_text"]
 
-        st.subheader("📁 AI Enhanced Project Summary")
+        st.subheader(" AI Enhanced Project Summary")
         st.write(project_summary)
 
 
@@ -136,7 +133,7 @@ Project Description:
 {project_text}
 """
 
-        st.subheader("📄 Generated Resume")
+        st.subheader(" Generated Resume")
         st.text(resume_text)
 
       
@@ -159,7 +156,7 @@ Project Summary:
 {project_summary}
 """
 
-        st.subheader("🌐 Generated Portfolio")
+        st.subheader(" Generated Portfolio")
         st.text(portfolio_text)
 
 
@@ -180,10 +177,11 @@ Project Summary:
 
         with open(file_name, "rb") as f:
             st.download_button(
-                "📥 Download Resume & Portfolio PDF",
+                " Download Resume & Portfolio PDF",
                 f,
                 file_name="AI_Resume_and_Portfolio.pdf",
                 mime="application/pdf"
             )
 
         os.remove(file_name)
+
