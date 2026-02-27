@@ -1,6 +1,3 @@
-
-!pip install -q scikit-learn transformers reportlab
-
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -144,4 +141,5 @@ for line in resume_text.split("\n"):
 c.save()
 
 from google.colab import files
+
 files.download("AI_Resume.pdf")
