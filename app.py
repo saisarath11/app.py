@@ -43,7 +43,7 @@ predicted_role = model.predict(skills_vector)[0]
 
 print("Predicted Job Role:", predicted_role)
 
-generator = pipeline("text-generation", model="gpt2")
+generator = pipeline("text-generation", model="sshleifer/tiny-gpt2")
 
 objective_prompt = f"Career Objective: A motivated {predicted_role} skilled in {skills_input} seeking"
 
@@ -143,3 +143,4 @@ c.save()
 from google.colab import files
 
 files.download("AI_Resume.pdf")
+
