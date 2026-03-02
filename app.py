@@ -46,7 +46,7 @@ st.success("ML Model Trained Successfully!")
 def load_model():
     return pipeline(
         "text-generation",
-        model="sshleifer/tiny-gpt2",
+        model="gpt2"",
         device=-1
     )
 generator = load_model()
@@ -212,4 +212,5 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
