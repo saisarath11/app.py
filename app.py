@@ -70,53 +70,80 @@ if st.button("Generate Resume & Portfolio"):
         st.subheader(" Predicted Job Role")
         st.success(predicted_role)
 
-       
-        objective_prompt = f"Career Objective: A motivated {predicted_role} skilled in {skills_input} seeking"
+        objective_prompt = f"""
+        Write a professional 2-3 line career objective 
+        for a {predicted_role} with skills in {skills_input}.
+        Keep it formal and concise.
+        """
 
         objective = generator(
             objective_prompt,
-            max_new_tokens=40,
-            temperature=0.7,
+            max_new_tokens=80,
+            temperature=0.5,
             do_sample=True
         )[0]["generated_text"]
 
-        st.subheader(" AI Career Objective")
+        objective = objective.replace(objective_prompt, "").strip()
+
+        st.subheader("AI Career Objective")
         st.write(objective)
 
-        bio_prompt = f"{name} is an aspiring {predicted_role} skilled in {skills_input}. "
+
+        bio_prompt = f"""
+        Write a short professional bio (3-4 lines)
+        for {name}, who is an aspiring {predicted_role}
+        with skills in {skills_input}.
+        Keep it structured and formal.
+        """
 
         bio = generator(
             bio_prompt,
-            max_new_tokens=50,
-            temperature=0.7,
+            max_new_tokens=100,
+            temperature=0.5,
             do_sample=True
         )[0]["generated_text"]
 
-        st.subheader("👤 AI Generated Bio")
+        bio = bio.replace(bio_prompt, "").strip()
+
+        st.subheader(" AI Generated Bio")
         st.write(bio)
 
-       
-        project_prompt = f"Project Description: This project involves {projects}. It focuses on"
+
+        project_prompt = f"""
+        Write a professional project description 
+        for a project titled '{projects}'.
+        Explain its purpose, technologies used,
+        and real-world impact in 4-5 lines.
+        """
 
         project_text = generator(
             project_prompt,
-            max_new_tokens=60,
-            temperature=0.7,
+            max_new_tokens=120,
+            temperature=0.5,
             do_sample=True
         )[0]["generated_text"]
+
+        project_text = project_text.replace(project_prompt, "").strip()
 
         st.subheader(" AI Project Description")
         st.write(project_text)
 
-      
-        project_prompt2 = f"Portfolio Project Summary: This project involves {projects}. It focuses on"
+
+        project_prompt2 = f"""
+        Write a concise portfolio summary 
+        for the project '{projects}'.
+        Highlight innovation and AI usage
+        in 3-4 lines.
+        """
 
         project_summary = generator(
             project_prompt2,
-            max_new_tokens=60,
-            temperature=0.7,
+            max_new_tokens=100,
+            temperature=0.5,
             do_sample=True
         )[0]["generated_text"]
+
+        project_summary = project_summary.replace(project_prompt2, "").strip()
 
         st.subheader(" AI Enhanced Project Summary")
         st.write(project_summary)
@@ -128,6 +155,7 @@ Email: {email}
 
 Predicted Role: {predicted_role}
 
+Career Objective:
 {objective}
 
 Skills:
@@ -140,11 +168,7 @@ Project Description:
         st.subheader(" Generated Resume")
         st.text(resume_text)
 
-      
-
         portfolio_text = f"""
-
-
 Name: {name}
 Email: {email}
 
@@ -188,5 +212,4 @@ Project Summary:
             )
 
         os.remove(file_name)
-
 
