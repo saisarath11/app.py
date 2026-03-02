@@ -9,11 +9,8 @@ import os
 
 st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="centered")
 
-st.title("🤖 AI Resume & Portfolio Builder")
+st.title(" AI Resume & Portfolio Builder")
 
-# ------------------------------
-# ML ROLE PREDICTION MODEL
-# ------------------------------
 
 data = {
     "skills": [
@@ -41,11 +38,8 @@ y = df["role"]
 model = MultinomialNB()
 model.fit(X, y)
 
-st.success("✅ ML Model Trained Successfully")
+st.success(" ML Model Trained Successfully")
 
-# ------------------------------
-# USER INPUT
-# ------------------------------
 
 name = st.text_input("Enter your name:")
 email = st.text_input("Enter email:")
@@ -53,25 +47,19 @@ skills_input = st.text_area("Enter your skills:")
 project_name = st.text_input("Enter your project title:")
 project_desc = st.text_area("Describe your project briefly:")
 
-# ------------------------------
-# GENERATE BUTTON
-# ------------------------------
 
 if st.button("Generate Resume & Portfolio"):
 
     if not name or not email or not skills_input:
-        st.warning("⚠ Please fill all required fields.")
+        st.warning(" Please fill all required fields.")
     else:
 
         skills_vector = vectorizer.transform([skills_input])
         predicted_role = model.predict(skills_vector)[0]
 
-        st.subheader("🎯 Predicted Job Role")
+        st.subheader(" Predicted Job Role")
         st.success(predicted_role)
 
-        # ------------------------------
-        # CLEAN PROFESSIONAL TEXT
-        # ------------------------------
 
         objective = f"""
 Motivated and detail-oriented {predicted_role} with strong knowledge in {skills_input}. 
@@ -88,22 +76,17 @@ Demonstrates strong analytical thinking, problem-solving skills, and dedication 
 The project highlights technical proficiency in {skills_input} and demonstrates the ability to design and build real-world applications.
 """
 
-        # ------------------------------
-        # DISPLAY OUTPUT
-        # ------------------------------
 
-        st.subheader("📝 Career Objective")
+        st.subheader(" Career Objective")
         st.write(objective)
 
-        st.subheader("👤 Professional Bio")
+        st.subheader(" Professional Bio")
         st.write(bio)
 
-        st.subheader("🚀 Project Description")
+        st.subheader(" Project Description")
         st.write(project_text)
 
-        # ------------------------------
-        # RESUME TEXT
-        # ------------------------------
+
 
         resume_text = f"""
 {name}
@@ -121,12 +104,10 @@ Project:
 {project_text}
 """
 
-        st.subheader("📄 Generated Resume")
+        st.subheader(" Generated Resume")
         st.text(resume_text)
 
-        # ------------------------------
-        # PORTFOLIO TEXT
-        # ------------------------------
+        
 
         portfolio_text = f"""
 Name: {name}
@@ -144,12 +125,10 @@ Project Summary:
 {project_text}
 """
 
-        st.subheader("🌐 Generated Portfolio")
+        st.subheader(" Generated Portfolio")
         st.text(portfolio_text)
 
-        # ------------------------------
-        # PDF GENERATION
-        # ------------------------------
+   
 
         file_name = "AI_Resume_and_Portfolio.pdf"
         doc = SimpleDocTemplate(file_name, pagesize=A4)
@@ -174,6 +153,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
