@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from transformers import pipeline
+import torch
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 import os
@@ -43,8 +44,11 @@ st.success("ML Model Trained Successfully!")
 
 @st.cache_resource
 def load_model():
-    return pipeline("text-generation", model="sshleifer/tiny-gpt2")
-
+    return pipeline(
+        "text-generation",
+        model="sshleifer/tiny-gpt2",
+        device=-1
+    )
 generator = load_model()
 
 
@@ -184,4 +188,5 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
