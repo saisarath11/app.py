@@ -1,94 +1,150 @@
 import streamlit as st
-import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet
-import os
+from sklearn.linear_model import LogisticRegression
+from transformers import pipeline
 
-st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="centered")
+
+st.set_page_config(
+    page_title="AI Resume & Portfolio Builder",
+    layout="wide"
+)
+
+st.markdown("""
+<style>
+.main { background-color: #0e1117; }
+h1, h2, h3 { color: #4CAF50; }
+.stButton>button {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 8px;
+    height: 3em;
+    width: 100%;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.title(" AI Resume & Portfolio Builder")
 
 
-data = {
-    "skills": [
-        "python machine learning data analysis pandas",
-        "html css javascript react",
-        "aws cloud docker kubernetes",
-        "network security ethical hacking cryptography",
-        "deep learning neural networks artificial intelligence"
-    ],
-    "role": [
-        "Data Scientist",
-        "Web Developer",
-        "Cloud Engineer",
-        "Cyber Security Analyst",
-        "AI Engineer"
-    ]
-}
+data = [
+    ("python machine learning data analysis pandas numpy", "Data Scientist"),
+    ("html css javascript react ui ux", "Frontend Developer"),
+    ("java spring boot api backend database", "Backend Developer"),
+    ("c c++ embedded systems microcontroller", "Embedded Engineer")
+]
 
-df = pd.DataFrame(data)
+texts = [x[0] for x in data]
+labels = [x[1] for x in data]
 
 vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(df["skills"])
-y = df["role"]
+X = vectorizer.fit_transform(texts)
 
-model = MultinomialNB()
-model.fit(X, y)
-
-st.success(" ML Model Trained Successfully")
+ml_model = LogisticRegression()
+ml_model.fit(X, labels)
 
 
-name = st.text_input("Enter your name:")
-email = st.text_input("Enter email:")
-skills_input = st.text_area("Enter your skills:")
-project_name = st.text_input("Enter your project title:")
-project_desc = st.text_area("Describe your project briefly:")
+@st.cache_resource
+def load_model():
+    return pipeline(
+        task="text2text-generation",
+        model="google/flan-t5-base",
+        device=-1
+    )
+
+generator = load_model()
+
+def generate_text(prompt):
+    response = generator(
+        prompt,
+        max_new_tokens=160,
+        do_sample=True,
+        temperature=0.7,
+        top_p=0.9,
+        repetition_penalty=1.4,
+        no_repeat_ngram_size=3
+    )
+    return response[0]["generated_text"]
 
 
-if st.button("Generate Resume & Portfolio"):
+col1, col2 = st.columns(2)
 
-    if not name or not email or not skills_input:
-        st.warning(" Please fill all required fields.")
-    else:
+with col1:
+    name = st.text_input("Full Name")
+    email = st.text_input("Email")
+    skills_input = st.text_area("Enter Your Skills")
 
-        skills_vector = vectorizer.transform([skills_input])
-        predicted_role = model.predict(skills_vector)[0]
+with col2:
+    project_title = st.text_input("Project Title")
+    project_desc = st.text_area("Project Description")
 
-        st.subheader(" Predicted Job Role")
-        st.success(predicted_role)
+if st.button("Generate Portfolio"):
 
+    
+    skills_vector = vectorizer.transform([skills_input])
+    predicted_role = ml_model.predict(skills_vector)[0]
 
-        objective = f"""
-Motivated and detail-oriented {predicted_role} with strong knowledge in {skills_input}. 
-Passionate about solving real-world problems using technology and continuously improving technical expertise.
-"""
+    st.success(f" Predicted Job Role: {predicted_role}")
 
-        bio = f"""
-{name} is an aspiring {predicted_role} with a solid foundation in {skills_input}. 
-Demonstrates strong analytical thinking, problem-solving skills, and dedication to delivering high-quality solutions.
-"""
+    
+    objective_prompt = f"""
+    Generate a professional career objective for a college student
+    aspiring to become a {predicted_role}.
+    Skills: {skills_input}
+    Write 2-3 professional sentences highlighting learning,
+    technical ability, and growth mindset.
+    Output:
+    """
 
-        project_text = f"""
-{project_name} is a practical implementation project where {project_desc}. 
-The project highlights technical proficiency in {skills_input} and demonstrates the ability to design and build real-world applications.
-"""
+    bio_prompt = f"""
+    Generate a professional third-person bio for {name},
+    a college student aspiring to become a {predicted_role}.
+    Skills: {skills_input}
+    Do not mention any company, university, or location.
+    Write 2-3 professional sentences.
+    Output:
+    """
 
+    project_prompt = f"""
+    Generate a professional project description.
 
-        st.subheader(" Career Objective")
-        st.write(objective)
+    Project Name: {project_title}
+    Details: {project_desc}
 
-        st.subheader(" Professional Bio")
-        st.write(bio)
+    Explain the purpose, technologies used,
+    and the impact of the project.
+    Output:
+    """
 
-        st.subheader(" Project Description")
-        st.write(project_text)
+    
+    portfolio_prompt = f"""
+    Generate a professional portfolio summary for {name},
+    a college student aspiring to become a {predicted_role}.
+    Skills: {skills_input}
+    Project: {project_title}
+    Do not mention any company or location.
+    Write 3-4 professional sentences.
+    Output:
+    """
 
+    objective = generate_text(objective_prompt)
+    bio = generate_text(bio_prompt)
+    project_text = generate_text(project_prompt)
+    portfolio_text = generate_text(portfolio_prompt)
 
+    st.markdown("## 📝 Career Objective")
+    st.info(objective)
 
-        resume_text = f"""
+    st.markdown(" Professional Bio")
+    st.success(bio)
+
+    st.markdown("  Project Description")
+    st.warning(project_text)
+
+   
+    st.markdown("  Portfolio Summary")
+    st.success(portfolio_text)
+
+    resume_text = f"""
 {name}
 Email: {email}
 
@@ -97,18 +153,20 @@ Predicted Role: {predicted_role}
 Career Objective:
 {objective}
 
+Professional Bio:
+{bio}
+
 Skills:
 {skills_input}
 
-Project:
+Project Description:
 {project_text}
+
+Portfolio Summary:
+{portfolio_text}
 """
 
-        st.subheader(" Generated Resume")
-        st.text(resume_text)
-
-        
-
+   
         portfolio_text = f"""
 Name: {name}
 Email: {email}
@@ -153,6 +211,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
