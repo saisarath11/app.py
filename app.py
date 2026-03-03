@@ -167,7 +167,7 @@ Portfolio Summary:
 """
 
    
-   portfolio_text = f"""
+ portfolio_text = f"""
 Name: {name}
 Email: {email}
 
@@ -211,6 +211,7 @@ Project Summary:
             )
 
         os.remove(file_name)
+
 
 
 
