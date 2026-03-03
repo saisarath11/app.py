@@ -2,7 +2,10 @@ import streamlit as st
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from transformers import pipeline
-
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
+import os
 
 st.set_page_config(
     page_title="AI Resume & Portfolio Builder",
@@ -23,8 +26,7 @@ h1, h2, h3 { color: #4CAF50; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title(" AI Resume & Portfolio Builder")
-
+st.title("AI Resume & Portfolio Builder")
 
 data = [
     ("python machine learning data analysis pandas numpy", "Data Scientist"),
@@ -41,7 +43,6 @@ X = vectorizer.fit_transform(texts)
 
 ml_model = LogisticRegression()
 ml_model.fit(X, labels)
-
 
 @st.cache_resource
 def load_model():
@@ -65,7 +66,6 @@ def generate_text(prompt):
     )
     return response[0]["generated_text"]
 
-
 col1, col2 = st.columns(2)
 
 with col1:
@@ -77,29 +77,26 @@ with col2:
     project_title = st.text_input("Project Title")
     project_desc = st.text_area("Project Description")
 
+
 if st.button("Generate Portfolio"):
 
-    
     skills_vector = vectorizer.transform([skills_input])
     predicted_role = ml_model.predict(skills_vector)[0]
 
-    st.success(f" Predicted Job Role: {predicted_role}")
+    st.success(f"Predicted Job Role: {predicted_role}")
 
-    
     objective_prompt = f"""
     Generate a professional career objective for a college student
     aspiring to become a {predicted_role}.
     Skills: {skills_input}
-    Write 2-3 professional sentences highlighting learning,
-    technical ability, and growth mindset.
+    Write 2-3 professional sentences.
     Output:
     """
 
     bio_prompt = f"""
     Generate a professional third-person bio for {name},
-    a college student aspiring to become a {predicted_role}.
+    aspiring to become a {predicted_role}.
     Skills: {skills_input}
-    Do not mention any company, university, or location.
     Write 2-3 professional sentences.
     Output:
     """
@@ -110,40 +107,38 @@ if st.button("Generate Portfolio"):
     Project Name: {project_title}
     Details: {project_desc}
 
-    Explain the purpose, technologies used,
-    and the impact of the project.
+    Explain the purpose and impact.
     Output:
     """
 
-    
     portfolio_prompt = f"""
-    Generate a professional portfolio summary for {name},
-    a college student aspiring to become a {predicted_role}.
+    Generate a professional portfolio summary for {name}.
     Skills: {skills_input}
     Project: {project_title}
-    Do not mention any company or location.
     Write 3-4 professional sentences.
     Output:
     """
 
+    
     objective = generate_text(objective_prompt)
     bio = generate_text(bio_prompt)
     project_text = generate_text(project_prompt)
-    portfolio_text = generate_text(portfolio_prompt)
+    portfolio_summary = generate_text(portfolio_prompt)
 
-    st.markdown("## 📝 Career Objective")
+    
+    st.markdown(" Career Objective")
     st.info(objective)
 
     st.markdown(" Professional Bio")
     st.success(bio)
 
-    st.markdown("  Project Description")
+    st.markdown(" Project Description")
     st.warning(project_text)
 
-   
-    st.markdown("  Portfolio Summary")
-    st.success(portfolio_text)
+    st.markdown(" Portfolio Summary")
+    st.success(portfolio_summary)
 
+    
     resume_text = f"""
 {name}
 Email: {email}
@@ -163,54 +158,31 @@ Project Description:
 {project_text}
 
 Portfolio Summary:
-{portfolio_text}
+{portfolio_summary}
 """
 
-   
- portfolio_text = f"""
-Name: {name}
-Email: {email}
+    file_name = "AI_Resume_and_Portfolio.pdf"
+    doc = SimpleDocTemplate(file_name, pagesize=A4)
+    elements = []
+    styles = getSampleStyleSheet()
+    style = styles["Normal"]
 
-Role: {predicted_role}
+    for line in resume_text.split("\n"):
+        elements.append(Paragraph(line, style))
+        elements.append(Spacer(1, 8))
 
-Professional Bio:
-{bio}
+    doc.build(elements)
 
-Skills:
-{skills_input}
+    with open(file_name, "rb") as f:
+        st.download_button(
+            "⬇ Download Resume & Portfolio PDF",
+            f,
+            file_name=file_name,
+            mime="application/pdf"
+        )
 
-Project Summary:
-{project_text}
-"""
+    os.remove(file_name)
 
-        st.subheader(" Generated Portfolio")
-        st.text(portfolio_text)
-
-   
-
-        file_name = "AI_Resume_and_Portfolio.pdf"
-        doc = SimpleDocTemplate(file_name, pagesize=A4)
-        elements = []
-        styles = getSampleStyleSheet()
-        style = styles["Normal"]
-
-        full_text = resume_text + "\n\n" + portfolio_text
-
-        for line in full_text.split("\n"):
-            elements.append(Paragraph(line, style))
-            elements.append(Spacer(1, 8))
-
-        doc.build(elements)
-
-        with open(file_name, "rb") as f:
-            st.download_button(
-                "⬇ Download Resume & Portfolio PDF",
-                f,
-                file_name=file_name,
-                mime="application/pdf"
-            )
-
-        os.remove(file_name)
 
 
 
