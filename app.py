@@ -113,7 +113,7 @@ Skills: {skills_input}
 
 Requirements:
 - 2 to 3 sentences
-- Describe the student as motivated and passionate about technology
+- Describe as motivated and passionate about technology
 """
 
     project_prompt = f"""
@@ -225,6 +225,7 @@ Portfolio Summary:
         file_name="portfolio.txt",
         mime="text/plain"
     )
+
 
 
 
