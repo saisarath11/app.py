@@ -102,7 +102,6 @@ Requirements:
 - Write 2 to 3 sentences
 - Sound confident and professional
 - Mention learning and technical skills
-- Do NOT mention company or location
 """
 
     bio_prompt = f"""
@@ -115,7 +114,6 @@ Skills: {skills_input}
 Requirements:
 - 2 to 3 sentences
 - Describe the student as motivated and passionate about technology
-- Do NOT mention any company or location
 """
 
     project_prompt = f"""
@@ -227,6 +225,7 @@ Portfolio Summary:
         file_name="portfolio.txt",
         mime="text/plain"
     )
+
 
 
 
