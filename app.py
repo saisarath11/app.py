@@ -24,6 +24,7 @@ h1, h2, h3 { color: #4CAF50; }
 
 st.title(" AI Resume & Portfolio Builder")
 
+
 data = [
     ("python machine learning data analysis pandas numpy", "Data Scientist"),
     ("html css javascript react ui ux", "Frontend Developer"),
@@ -40,6 +41,7 @@ X = vectorizer.fit_transform(texts)
 ml_model = LogisticRegression()
 ml_model.fit(X, labels)
 
+
 @st.cache_resource
 def load_model():
     return pipeline(
@@ -50,88 +52,107 @@ def load_model():
 
 generator = load_model()
 
-
 def generate_text(prompt):
     response = generator(
         prompt,
-        max_new_tokens=160,
+        max_new_tokens=120,
         do_sample=True,
-        temperature=0.7,
-        top_p=0.9,
-        repetition_penalty=1.4,
-        no_repeat_ngram_size=3
+        temperature=0.6,
+        top_p=0.85,
+        repetition_penalty=1.3
     )
-    return response[0]["generated_text"]
-
+    return response[0]["generated_text"].strip()
 
 col1, col2 = st.columns(2)
 
 with col1:
     name = st.text_input("Full Name")
     email = st.text_input("Email")
-    skills_input = st.text_area("Enter Your Skills")
+    skills_input = st.text_area("Enter Your Skills (example: python, c++, machine learning)")
 
 with col2:
     project_title = st.text_input("Project Title")
     project_desc = st.text_area("Project Description")
 
 
-if st.button("Generate Portfolio"):
+if st.button("Generate Resume & Portfolio"):
 
-    # Predict Role
+    if skills_input.strip() == "":
+        st.warning("Please enter your skills.")
+        st.stop()
+
+    if project_desc.strip() == "":
+        project_desc = "AI Resume & Portfolio Builder that generates professional resumes and portfolios based on user skills using machine learning."
+
+  
     skills_vector = vectorizer.transform([skills_input])
     predicted_role = ml_model.predict(skills_vector)[0]
 
     st.success(f" Predicted Job Role: {predicted_role}")
 
+  
 
     objective_prompt = f"""
-    Generate a professional career objective for a college student
-    aspiring to become a {predicted_role}.
-    Skills: {skills_input}
-    Write 2-3 professional sentences highlighting learning,
-    technical ability, and growth mindset.
-    Output:
-    """
+Write a professional career objective for a college student.
+
+Role: {predicted_role}
+Skills: {skills_input}
+
+Requirements:
+- Write 2 to 3 sentences
+- Sound confident and professional
+- Mention learning and technical skills
+- Do NOT mention company or location
+"""
 
     bio_prompt = f"""
-    Generate a professional third-person bio for {name},
-    a college student aspiring to become a {predicted_role}.
-    Skills: {skills_input}
-    Do not mention any company, university, or location.
-    Write 2-3 professional sentences.
-    Output:
-    """
+Write a short professional bio in third person.
+
+Name: {name}
+Role: aspiring {predicted_role}
+Skills: {skills_input}
+
+Requirements:
+- 2 to 3 sentences
+- Describe the student as motivated and passionate about technology
+- Do NOT mention any company or location
+"""
 
     project_prompt = f"""
-    Generate a professional project description.
+Write a professional project description.
 
-    Project Name: {project_title}
-    Details: {project_desc}
+Project Name: {project_title}
 
-    Explain the purpose, technologies used,
-    and the impact of the project.
-    Output:
-    """
+Details:
+{project_desc}
 
+Requirements:
+- 3 sentences
+- Explain the purpose of the project
+- Mention AI or programming technologies
+- Explain how it helps users
+"""
 
     portfolio_prompt = f"""
-    Generate a professional portfolio summary for {name},
-    a college student aspiring to become a {predicted_role}.
-    Skills: {skills_input}
-    Project: {project_title}
-    Do not mention any company or location.
-    Write 3-4 professional sentences.
-    Output:
-    """
+Write a professional portfolio summary.
 
-   
+Name: {name}
+Role: aspiring {predicted_role}
+Skills: {skills_input}
+Project: {project_title}
+
+Requirements:
+- 3 sentences
+- Describe technical skills and projects
+- Sound professional
+"""
+
     objective = generate_text(objective_prompt)
     bio = generate_text(bio_prompt)
     project_text = generate_text(project_prompt)
-    portfolio_text = generate_text(portfolio_prompt)
+    portfolio_summary = generate_text(portfolio_prompt)
 
-
+   
     st.markdown(" Career Objective")
     st.info(objective)
 
@@ -141,16 +162,16 @@ if st.button("Generate Portfolio"):
     st.markdown(" Project Description")
     st.warning(project_text)
 
-   
     st.markdown(" Portfolio Summary")
-    st.success(portfolio_text)
+    st.success(portfolio_summary)
 
-   
+    
     resume_text = f"""
 {name}
 Email: {email}
 
-Predicted Role: {predicted_role}
+Predicted Role:
+{predicted_role}
 
 Career Objective:
 {objective}
@@ -161,28 +182,15 @@ Professional Bio:
 Skills:
 {skills_input}
 
-Project Description:
+Project:
 {project_text}
-
-Portfolio Summary:
-{portfolio_text}
 """
 
-    st.markdown(" Generated Resume")
-    st.text_area("Resume Preview", resume_text, height=350)
-
-    st.download_button(
-        label=" Download Resume",
-        data=resume_text,
-        file_name="Resume.txt",
-        mime="text/plain"
-    )
-  
-    portfolio_output = f"""
+    portfolio_text = f"""
 {name}
-Email: {email}
 
-Role: {predicted_role}
+Aspiring Role:
+{predicted_role}
 
 Professional Bio:
 {bio}
@@ -193,19 +201,33 @@ Skills:
 Project:
 {project_title}
 
-Project Description:
+Project Summary:
 {project_text}
+
+Portfolio Summary:
+{portfolio_summary}
 """
 
+    st.markdown(" Generated Resume")
+    st.text_area("Resume Preview", resume_text, height=300)
+
     st.markdown(" Generated Portfolio")
-    st.text_area("Portfolio Preview", portfolio_output, height=300)
+    st.text_area("Portfolio Preview", portfolio_text, height=300)
 
     st.download_button(
-        label="Download Portfolio",
-        data=portfolio_output,
-        file_name="Portfolio.txt",
+        label="⬇ Download Resume",
+        data=resume_text,
+        file_name="resume.txt",
         mime="text/plain"
     )
+
+    st.download_button(
+        label="⬇ Download Portfolio",
+        data=portfolio_text,
+        file_name="portfolio.txt",
+        mime="text/plain"
+    )
+
 
 
 
