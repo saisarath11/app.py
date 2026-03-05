@@ -3,18 +3,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from transformers import pipeline
 
-# -----------------------------------
-# PAGE CONFIG
-# -----------------------------------
 st.set_page_config(
     page_title="AI Resume & Portfolio Builder",
-    page_icon="🚀",
     layout="wide"
 )
 
-# -----------------------------------
-# PREMIUM UI STYLE
-# -----------------------------------
 st.markdown("""
 <style>
 .main { background-color: #0e1117; }
@@ -29,11 +22,8 @@ h1, h2, h3 { color: #4CAF50; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🚀 AI Resume & Portfolio Builder")
+st.title(" AI Resume & Portfolio Builder")
 
-# -----------------------------------
-# SIMPLE ML MODEL (ROLE PREDICTION)
-# -----------------------------------
 data = [
     ("python machine learning data analysis pandas numpy", "Data Scientist"),
     ("html css javascript react ui ux", "Frontend Developer"),
@@ -50,9 +40,6 @@ X = vectorizer.fit_transform(texts)
 ml_model = LogisticRegression()
 ml_model.fit(X, labels)
 
-# -----------------------------------
-# LOAD GENERATIVE MODEL
-# -----------------------------------
 @st.cache_resource
 def load_model():
     return pipeline(
@@ -63,9 +50,7 @@ def load_model():
 
 generator = load_model()
 
-# -----------------------------------
-# GENERATION FUNCTION
-# -----------------------------------
+
 def generate_text(prompt):
     response = generator(
         prompt,
@@ -78,9 +63,7 @@ def generate_text(prompt):
     )
     return response[0]["generated_text"]
 
-# -----------------------------------
-# INPUT SECTION
-# -----------------------------------
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -92,20 +75,16 @@ with col2:
     project_title = st.text_input("Project Title")
     project_desc = st.text_area("Project Description")
 
-# -----------------------------------
-# GENERATE BUTTON
-# -----------------------------------
+
 if st.button("Generate Portfolio"):
 
     # Predict Role
     skills_vector = vectorizer.transform([skills_input])
     predicted_role = ml_model.predict(skills_vector)[0]
 
-    st.success(f"🎯 Predicted Job Role: {predicted_role}")
+    st.success(f" Predicted Job Role: {predicted_role}")
 
-    # -----------------------------------
-    # PROMPTS
-    # -----------------------------------
+
     objective_prompt = f"""
     Generate a professional career objective for a college student
     aspiring to become a {predicted_role}.
@@ -135,7 +114,7 @@ if st.button("Generate Portfolio"):
     Output:
     """
 
-    # ✅ PORTFOLIO PROMPT (ADDED)
+
     portfolio_prompt = f"""
     Generate a professional portfolio summary for {name},
     a college student aspiring to become a {predicted_role}.
@@ -146,33 +125,27 @@ if st.button("Generate Portfolio"):
     Output:
     """
 
-    # -----------------------------------
-    # GENERATE CONTENT
-    # -----------------------------------
+   
     objective = generate_text(objective_prompt)
     bio = generate_text(bio_prompt)
     project_text = generate_text(project_prompt)
     portfolio_text = generate_text(portfolio_prompt)
 
-    # -----------------------------------
-    # DISPLAY OUTPUT
-    # -----------------------------------
-    st.markdown("## 📝 Career Objective")
+
+    st.markdown(" Career Objective")
     st.info(objective)
 
-    st.markdown("## 👤 Professional Bio")
+    st.markdown(" Professional Bio")
     st.success(bio)
 
-    st.markdown("## 🚀 Project Description")
+    st.markdown(" Project Description")
     st.warning(project_text)
 
-    # ✅ DISPLAY PORTFOLIO
-    st.markdown("## 🌐 Portfolio Summary")
+   
+    st.markdown(" Portfolio Summary")
     st.success(portfolio_text)
 
-    # -----------------------------------
-    # GENERATED RESUME TEXT
-    # -----------------------------------
+   
     resume_text = f"""
 {name}
 Email: {email}
@@ -195,7 +168,7 @@ Portfolio Summary:
 {portfolio_text}
 """
 
-    st.markdown("## 📄 Generated Resume")
+    st.markdown(" Generated Resume")
     st.text_area("Resume Preview", resume_text, height=350)
 
     st.download_button(
@@ -204,6 +177,7 @@ Portfolio Summary:
         file_name="Resume.txt",
         mime="text/plain"
     )
+
 
 
 
