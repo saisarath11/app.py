@@ -172,9 +172,38 @@ Portfolio Summary:
     st.text_area("Resume Preview", resume_text, height=350)
 
     st.download_button(
-        label="📥 Download Resume",
+        label=" Download Resume",
         data=resume_text,
         file_name="Resume.txt",
+        mime="text/plain"
+    )
+  
+    portfolio_output = f"""
+{name}
+Email: {email}
+
+Role: {predicted_role}
+
+Professional Bio:
+{bio}
+
+Skills:
+{skills_input}
+
+Project:
+{project_title}
+
+Project Description:
+{project_text}
+"""
+
+    st.markdown(" Generated Portfolio")
+    st.text_area("Portfolio Preview", portfolio_output, height=300)
+
+    st.download_button(
+        label="Download Portfolio",
+        data=portfolio_output,
+        file_name="Portfolio.txt",
         mime="text/plain"
     )
 
